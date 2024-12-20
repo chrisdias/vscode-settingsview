@@ -1,6 +1,6 @@
-# 50 Settings for VS Code
+# The 50 Essential Settings for VS Code
 
-Quick access to the 50 most commonly used VS Code settings, all in one convenient view.
+Quick access to the 50 essential VS Code settings, all in one convenient view.
 
 ## Features
 

@@ -265,11 +265,11 @@ class SettingsViewProvider implements vscode.WebviewViewProvider {
                     .chevron {
                         width: 16px;
                         height: 16px;
-                        transition: transform 0.2s;
-                        color: var(--vscode-foreground);
                         display: flex;
                         align-items: center;
                         justify-content: center;
+                        opacity: 0.8;
+                        font-size: 12px;
                     }
                     
                     .chevron.collapsed {
@@ -300,15 +300,35 @@ class SettingsViewProvider implements vscode.WebviewViewProvider {
                     }
                     .search-container {
                         margin-bottom: 16px;
+                        max-width: 100%;
+                        position: relative;
                     }
+                    
                     .search-input {
                         width: 100%;
-                        padding: 6px 8px;
+                        box-sizing: border-box;
+                        padding: 6px 28px 6px 8px;  /* Added right padding for the clear button */
                         background: var(--vscode-input-background);
                         color: var(--vscode-input-foreground);
                         border: 1px solid var(--vscode-input-border);
                         border-radius: 2px;
                     }
+
+                    .search-clear {
+                        position: absolute;
+                        right: 8px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        cursor: pointer;
+                        color: var(--vscode-input-foreground);
+                        opacity: 0.6;
+                        display: none;  /* Hidden by default */
+                    }
+
+                    .search-clear:hover {
+                        opacity: 1;
+                    }
+                    
                     .no-results {
                         text-align: center;
                         padding: 20px;
@@ -325,6 +345,7 @@ class SettingsViewProvider implements vscode.WebviewViewProvider {
                 <div id="settings-container">
                     <div class="search-container">
                         <input type="text" class="search-input" placeholder="Search settings..." id="searchInput">
+                        <div class="search-clear" id="searchClear">✕</div>
                     </div>
                     <div id="settings-groups">
                         ${currentSettings.map((group, index) => `
@@ -350,7 +371,7 @@ class SettingsViewProvider implements vscode.WebviewViewProvider {
                         `).join('')}
                     </div>
                     <div id="no-results" class="no-results" style="display: none;">
-                        No settings found. <span class="no-results-link" id="open-settings">Open settings.json</span>
+                        No settings found. Open <span class="no-results-link" id="open-settings">settings.json</span>
                     </div>
                     <div class="settings-link" id="open-settings-link">Open settings.json</div>
                 </div>
@@ -383,14 +404,16 @@ class SettingsViewProvider implements vscode.WebviewViewProvider {
                         });
                     });
 
-                    document.getElementById('open-settings').addEventListener('click', () => {
-                        vscode.postMessage({
-                            type: 'openSettings'
+                    // Add click handlers for both "Open settings.json" links
+                    document.querySelectorAll('#open-settings, #open-settings-link').forEach(link => {
+                        link.addEventListener('click', () => {
+                            vscode.postMessage({ type: 'openSettings' });
                         });
                     });
 
                     // Search functionality
                     const searchInput = document.getElementById('searchInput');
+                    const searchClear = document.getElementById('searchClear');
                     const settingsGroups = document.getElementById('settings-groups');
                     const noResults = document.getElementById('no-results');
                     const settingsLink = document.getElementById('open-settings-link');
@@ -414,6 +437,8 @@ class SettingsViewProvider implements vscode.WebviewViewProvider {
 
                     searchInput.addEventListener('input', (e) => {
                         const searchTerm = e.target.value.trim();
+                        searchClear.style.display = searchTerm ? 'block' : 'none';
+                        
                         let hasVisibleSettings = false;
 
                         document.querySelectorAll('.setting-item').forEach(item => {
@@ -440,6 +465,14 @@ class SettingsViewProvider implements vscode.WebviewViewProvider {
                         settingsGroups.style.display = hasVisibleSettings ? 'block' : 'none';
                         noResults.style.display = hasVisibleSettings ? 'none' : 'block';
                         settingsLink.style.display = hasVisibleSettings ? 'block' : 'none';
+                    });
+
+                    // Clear search when x is clicked
+                    searchClear.addEventListener('click', () => {
+                        searchInput.value = '';
+                        searchClear.style.display = 'none';
+                        searchInput.dispatchEvent(new Event('input'));
+                        searchInput.focus();
                     });
 
                     // Add click handler for no-results link

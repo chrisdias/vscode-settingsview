@@ -1,7 +1,7 @@
 {
   "name": "vscode-50-settings",
-  "displayName": "50 Settings",
-  "description": "Quick access to 50 commonly used VS Code settings",
+  "displayName": "The 50 Essential Settings",
+  "description": "Quick access to the 50 essential VS Code settings",
   "version": "1.0.0",
   "publisher": "chrisdias",
   "engines": {
@@ -35,12 +35,12 @@
   "contributes": {
     "commands": [{
       "command": "popularSettings.show",
-      "title": "Show 50 Settings"
+      "title": "Show Essential Settings"
     }],
     "viewsContainers": {
       "activitybar": [{
         "id": "popularSettings",
-        "title": "50 Settings",
+        "title": "The 50 Essential Settings",
         "icon": "$(gear)"
       }]
     },
@@ -48,7 +48,7 @@
       "popularSettings": [{
         "type": "webview",
         "id": "popularSettings.settingsView",
-        "name": "50 Settings"
+        "name": "The 50 Essential Settings"
       }]
     }
   },

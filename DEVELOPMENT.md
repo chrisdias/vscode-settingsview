@@ -1,7 +1,7 @@
-# VS Code 50 Settings Extension Development
+# VS Code Essential Settings Extension Development
 
 ## Overview
-Extension that provides quick access to 50 commonly used VS Code settings through a custom view in the activity bar.
+Extension that provides quick access to the 50 essential VS Code settings through a custom view in the activity bar.
 
 ## Key Features Implemented
 1. Custom view in activity bar with gear icon
