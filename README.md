@@ -34,7 +34,7 @@ Quick access to the 50 most commonly used VS Code settings, all in one convenien
 
 ## Contributing
 
-Found a bug or want to suggest a setting? Visit our [GitHub repository](https://github.com/yourusername/vscode-50-settings).
+Found a bug or want to suggest a setting? Visit our [GitHub repository](https://github.com/chrisdias/vscode-settingsview).
 
 ## License
 

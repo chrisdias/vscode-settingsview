@@ -24,11 +24,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/chrisdias/vscode-50-settings"
+    "url": "https://github.com/chrisdias/vscode-settingsview"
   },
   "bugs": {
-    "url": "https://github.com/chrisdias/vscode-50-settings/issues"
+    "url": "https://github.com/chrisdias/vscode-settingsview/issues"
   },
+  "license": "SEE LICENSE IN LICENSE",
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
