@@ -16,8 +16,15 @@
       "command": "popularSettings.show",
       "title": "Show Popular Settings"
     }],
+    "viewsContainers": {
+      "activitybar": [{
+        "id": "popularSettings",
+        "title": "Popular Settings",
+        "icon": "$(gear)"
+      }]
+    },
     "views": {
-      "explorer": [{
+      "popularSettings": [{
         "type": "webview",
         "id": "popularSettings.settingsView",
         "name": "Popular Settings"
