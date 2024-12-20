@@ -292,32 +292,61 @@ class SettingsViewProvider implements vscode.WebviewViewProvider {
                         color: var(--vscode-textLink-activeForeground);
                         text-decoration: underline;
                     }
+                    .search-container {
+                        margin-bottom: 16px;
+                    }
+                    .search-input {
+                        width: 100%;
+                        padding: 6px 8px;
+                        background: var(--vscode-input-background);
+                        color: var(--vscode-input-foreground);
+                        border: 1px solid var(--vscode-input-border);
+                        border-radius: 2px;
+                    }
+                    .no-results {
+                        text-align: center;
+                        padding: 20px;
+                        color: var(--vscode-descriptionForeground);
+                    }
+                    .no-results-link {
+                        color: var(--vscode-textLink-foreground);
+                        cursor: pointer;
+                        text-decoration: underline;
+                    }
                 </style>
             </head>
             <body>
                 <div id="settings-container">
-                    ${currentSettings.map((group, index) => `
-                        <div class="settings-group">
-                            <div class="group-header" data-group="${index}">
-                                <div class="chevron">▼</div>
-                                <div class="group-title">${group.title}</div>
-                            </div>
-                            <div class="group-content">
-                                ${group.settings.map(setting => `
-                                    <div class="setting-item">
-                                        <div class="setting-left">
-                                            <div class="setting-title">${setting.title}:</div>
-                                            <div class="setting-description">${setting.description}</div>
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Search settings..." id="searchInput">
+                    </div>
+                    <div id="settings-groups">
+                        ${currentSettings.map((group, index) => `
+                            <div class="settings-group">
+                                <div class="group-header" data-group="${index}">
+                                    <div class="chevron">▼</div>
+                                    <div class="group-title">${group.title}</div>
+                                </div>
+                                <div class="group-content">
+                                    ${group.settings.map(setting => `
+                                        <div class="setting-item" data-setting-id="${setting.id}" data-setting-title="${setting.title}" data-setting-description="${setting.description}">
+                                            <div class="setting-left">
+                                                <div class="setting-title">${setting.title}:</div>
+                                                <div class="setting-description">${setting.description}</div>
+                                            </div>
+                                            <div class="setting-control-container">
+                                                ${this._getControlHtml(setting)}
+                                            </div>
                                         </div>
-                                        <div class="setting-control-container">
-                                            ${this._getControlHtml(setting)}
-                                        </div>
-                                    </div>
-                                `).join('')}
+                                    `).join('')}
+                                </div>
                             </div>
-                        </div>
-                    `).join('')}
-                    <div class="settings-link" id="open-settings">Open settings.json</div>
+                        `).join('')}
+                    </div>
+                    <div id="no-results" class="no-results" style="display: none;">
+                        No settings found. <span class="no-results-link" id="open-settings">Open settings.json</span>
+                    </div>
+                    <div class="settings-link" id="open-settings-link">Open settings.json</div>
                 </div>
                 <script>
                     const vscode = acquireVsCodeApi();
@@ -352,6 +381,64 @@ class SettingsViewProvider implements vscode.WebviewViewProvider {
                         vscode.postMessage({
                             type: 'openSettings'
                         });
+                    });
+
+                    // Search functionality
+                    const searchInput = document.getElementById('searchInput');
+                    const settingsGroups = document.getElementById('settings-groups');
+                    const noResults = document.getElementById('no-results');
+                    const settingsLink = document.getElementById('open-settings-link');
+
+                    function fuzzyMatch(str, pattern) {
+                        pattern = pattern.toLowerCase();
+                        str = str.toLowerCase();
+                        
+                        let patternIdx = 0;
+                        let strIdx = 0;
+                        
+                        while (patternIdx < pattern.length && strIdx < str.length) {
+                            if (pattern[patternIdx] === str[strIdx]) {
+                                patternIdx++;
+                            }
+                            strIdx++;
+                        }
+                        
+                        return patternIdx === pattern.length;
+                    }
+
+                    searchInput.addEventListener('input', (e) => {
+                        const searchTerm = e.target.value.trim();
+                        let hasVisibleSettings = false;
+
+                        document.querySelectorAll('.setting-item').forEach(item => {
+                            const settingId = item.dataset.settingId;
+                            const settingTitle = item.dataset.settingTitle;
+                            const settingDescription = item.dataset.settingDescription;
+                            
+                            const matches = searchTerm === '' || 
+                                fuzzyMatch(settingId, searchTerm) || 
+                                fuzzyMatch(settingTitle, searchTerm) ||
+                                fuzzyMatch(settingDescription, searchTerm);
+
+                            item.style.display = matches ? 'flex' : 'none';
+                            if (matches) hasVisibleSettings = true;
+                        });
+
+                        // Show/hide groups based on whether they have visible settings
+                        document.querySelectorAll('.settings-group').forEach(group => {
+                            const hasVisibleItems = Array.from(group.querySelectorAll('.setting-item'))
+                                .some(item => item.style.display !== 'none');
+                            group.style.display = hasVisibleItems ? 'block' : 'none';
+                        });
+
+                        settingsGroups.style.display = hasVisibleSettings ? 'block' : 'none';
+                        noResults.style.display = hasVisibleSettings ? 'none' : 'block';
+                        settingsLink.style.display = hasVisibleSettings ? 'block' : 'none';
+                    });
+
+                    // Add click handler for no-results link
+                    document.querySelector('#no-results .no-results-link').addEventListener('click', () => {
+                        vscode.postMessage({ type: 'openSettings' });
                     });
                 </script>
             </body>
